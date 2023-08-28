@@ -1,0 +1,93 @@
+
+service: my-api-serverless-ts
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action: 
+        - dynamodb:*
+      Resource: 
+        - ${self:custom.marcaTableArn}
+
+
+  
+
+plugins:
+  - serverless-openapi-documentation
+  - serverless-offline
+  - serverless-esbuild
+
+
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+  marcaTableArn: arn:aws:dynamodb:us-east-1:171267240569:table/MarcaTable
+  documentation:
+    version: 1.0.0
+    title: Api-Serverless-NodeJs
+    endpoints:
+      - path: /api/marcas/{id}
+        method: get
+        functionName: serviceGetMarca
+        description: Endpoint para obtener una marca por su ID
+
+
+
+
+functions:
+  servicioGETALL:
+    handler: src/handlers/handlerGETSWAPI.servicioALLGETSWAPI
+    events: 
+      - httpApi:
+          path: /api/serviciogetswpi
+          method: get
+  
+  serviceGET:
+     handler: src/handlers/handlerGETSWAPI.servicioGETSWAPI
+     events:
+       - httpApi:
+          path: /api/serviciogetswpi/{codigo}
+          method: get
+  
+
+  servicePostMarca:
+     handler: src/handlers/handlerMarca.servicePostMarca
+     events:
+       - httpApi:
+          path: /api/marcas
+          method: post
+  serviceGetAllMarca:
+     handler: src/handlers/handlerMarca.serviceGetAllMarcas
+     events:
+       - httpApi:
+          path: /api/marcas
+          method: get
+  serviceGetMarca:
+     handler: src/handlers/handlerMarca.serviceGetMarca
+     events:
+       - httpApi:
+          path: /api/marcas/{id}
+          method: get
+          
+ 
+
+
+resources:
+  Resources:
+    usuariosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MarcaTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
